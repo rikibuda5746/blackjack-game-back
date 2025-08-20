@@ -12,7 +12,7 @@ export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'email', nullable: false })
+  @Column({ name: 'email', nullable: false, unique: true })
   email: string;
 
   @Column({ name: 'name', nullable: false })

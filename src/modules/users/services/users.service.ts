@@ -7,6 +7,8 @@ import { UserRepository } from '../repositories/user.repository';
 import { CreateUserRequestDto } from '../dto/requests/create-user.request.dto';
 import { PaginationResponseDto } from '@src/shared/dtos/pagination.response.dto';
 import { PaginationTransformer } from '@src/shared/transformers/pagination.transformer';
+import { UserEntity } from '../entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +31,18 @@ export class UsersService {
     return plainToInstance(UserResponseDto, user, {
       excludeExtraneousValues: true,
     });
+  }
+
+  async findOne(criteria: Partial<UserEntity>): Promise< UserResponseDto | null> {
+    return await this.userRepository.getOneByQuery(criteria);
+  }
+
+  async checkPassword(email: string, password: string): Promise<boolean> {
+    const user = await this.userRepository.getOneByQuery({ email });
+    if (!user) {
+      return false;
+    }
+    return await bcrypt.compare(password, user.password) && email === user.email;
   }
 
   async getUsers(

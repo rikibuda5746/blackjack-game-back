@@ -17,6 +17,14 @@ export class AppConfigService {
     return Number(this.configService.get('auth.jwtAccessExpires'));
   }
 
+  get jwtRefreshSecret(): string {
+    return this.configService.get('auth.jwtRefreshSecret');
+  }
+
+  get jwtRefreshExpires(): number {
+    return Number(this.configService.get('auth.jwtRefreshExpires'));
+  }
+
   get logToFile(): boolean {
     return this.configService.get('application.logToFile') === 'true';
   }

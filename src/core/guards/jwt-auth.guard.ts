@@ -2,6 +2,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -54,6 +55,11 @@ export class JwtAuthGuard implements CanActivate {
 
       return true;
     } catch (err) {
+      // token decode
+      const decoded = this.jwtService.decode(token);
+      if(decoded['exp'] < Date.now() / 1000) {
+        throw new HttpException('Token expired', 800);
+      }
       throw new UnauthorizedException('Token verification failed');
     }
   }
