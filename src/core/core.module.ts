@@ -12,6 +12,7 @@ import { DatabaseModule } from '@src/database/database.module';
 import { DatabaseService } from '@src/database/database.service';
 import { AppConfigModule } from '../config/app-config.module';
 import { LogModule } from './logger/log.module';
+import { AppRedisModule } from './redis/redis.module';
 
 @Global()
 @Module({
@@ -19,6 +20,7 @@ import { LogModule } from './logger/log.module';
     AppConfigModule,
     ConfigModule,
     LogModule,
+    AppRedisModule,
     JwtModule,
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
@@ -44,6 +46,6 @@ import { LogModule } from './logger/log.module';
       useClass: JwtAuthGuard,
     },
   ],
-  exports: [AppConfigModule, LogModule, ConfigModule, JwtModule],
+  exports: [AppConfigModule, LogModule, ConfigModule, JwtModule, AppRedisModule],
 })
 export class CoreModule {}
