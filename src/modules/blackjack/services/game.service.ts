@@ -46,8 +46,10 @@ export class GameService {
       
       const gameId = uuidv4();
       const deck = GameEngine.generateDeck();
-      const playerCards = [deck.pop()!, deck.pop()!];
-      const dealerCards = [deck.pop()!];
+      const playerCards: string[] = [];
+      const dealerCards: string[] = [];
+      GameEngine.dealCards(deck, playerCards, 2); 
+      GameEngine.dealCards(deck, dealerCards, 1);
       const gameStatusAndResult = GameEngine.checkGameStatus(playerCards, dealerCards);
 
       const gameState: GameState = {
@@ -76,7 +78,7 @@ export class GameService {
           throw new BadRequestException('Game not found');
         }
 
-        gameState.playerCards.push(gameState.deck.pop()!);
+        GameEngine.dealCards(gameState.deck, gameState.playerCards, 1);
   
         const gameStatusAndResult = GameEngine.checkGameStatus(gameState.playerCards, gameState.dealerCards);
         gameState.status = gameStatusAndResult.status;
@@ -99,7 +101,7 @@ export class GameService {
       }
     
       while (GameEngine.calculateHandValue(gameState.dealerCards) < 17) {
-        gameState.dealerCards.push(gameState.deck.pop()!);
+        GameEngine.dealCards(gameState.deck, gameState.dealerCards, 1);
       }
     
       const gameStatusAndResult = GameEngine.checkGameStatus(gameState.playerCards, gameState.dealerCards, true);

@@ -23,6 +23,15 @@ export class GameEngine {
     return deck;
   }
 
+  static dealCards(deck: string[], target: string[], count = 1): void {
+    for (let i = 0; i < count; i++) {
+      if (deck.length === 0) {
+        throw new Error('Deck is empty');
+      }
+      target.push(deck.pop()!);
+    }
+  }
+
   static calculateHandValue(cards: string[]): number {
     let value = 0;
     let aces = 0;
