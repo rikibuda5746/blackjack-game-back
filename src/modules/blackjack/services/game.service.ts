@@ -4,12 +4,12 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 import { LogService } from '@src/core/logger/log-service';
-import { StartGameRequestDto } from '../dto/requests/startGame.request.dto';
-import { HitGameRequestDto } from '../dto/requests/hitGame.request.dto';
-import { StandGameRequestDto } from '../dto/requests/standGame.request.dto';
-import { GameResponseDto } from '../dto/responses/game.response.dto';
-import { GameState } from '../interfaces/game-state.interface';
-import { GameStatus } from '../enums/game-status.enum';
+import { StartGameRequestDto } from '../models/dto/requests/startGame.request.dto';
+import { HitGameRequestDto } from '../models/dto/requests/hitGame.request.dto';
+import { StandGameRequestDto } from '../models/dto/requests/standGame.request.dto';
+import { GameResponseDto } from '../models/dto/responses/game.response.dto';
+import { GameState } from '../models/interfaces/game-state.interface';
+import { GameStatus } from '../models/enums/game-status.enum';
 import { GameEngine } from '../utils/game-engine.util';
 
 @Injectable()

@@ -1,10 +1,10 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { GameService } from '../services/game.service';
-import { StartGameRequestDto } from '../dto/requests/startGame.request.dto';
-import { HitGameRequestDto } from '../dto/requests/hitGame.request.dto';
-import { StandGameRequestDto } from '../dto/requests/standGame.request.dto';
-import { GameResponseDto } from '../dto/responses/game.response.dto';
+import { StartGameRequestDto } from '../models/dto/requests/startGame.request.dto';
+import { HitGameRequestDto } from '../models/dto/requests/hitGame.request.dto';
+import { StandGameRequestDto } from '../models/dto/requests/standGame.request.dto';
+import { GameResponseDto } from '../models/dto/responses/game.response.dto';
 import { CurrentUser } from '@src/common/decorators/current-user.decorator';
 import { JwtUserDetailsDto } from '@src/common/dto/jwt-user-details.dto';
 
