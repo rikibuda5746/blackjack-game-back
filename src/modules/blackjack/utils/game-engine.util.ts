@@ -1,5 +1,5 @@
-import { GameStatus } from '../enums/game-status.enum';
-import { GameResult } from '../enums/game-result.enum';
+import { GameStatus } from '../models/enums/game-status.enum';
+import { GameResult } from '../models/enums/game-result.enum';
 
 export class GameEngine {
   private static readonly TARGET_VALUE = 21;
