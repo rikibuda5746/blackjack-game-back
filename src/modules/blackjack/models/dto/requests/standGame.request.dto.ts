@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class StandGameRequestDto {
@@ -6,6 +6,6 @@ export class StandGameRequestDto {
     description: 'ID of the game to stand',
     example: 'abc123',
   })
-  @IsString()
-  gameId: string;
+  @IsNumber()
+  gameId: number;
 }

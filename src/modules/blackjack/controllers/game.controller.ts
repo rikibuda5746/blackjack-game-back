@@ -16,17 +16,17 @@ export class GameController {
 
   @Post('start')
   async startGame(@Body() startGameDto: StartGameRequestDto, @CurrentUser() user: JwtUserDetailsDto): Promise<GameResponseDto> {
-    return this.gameService.startGame(startGameDto);
+    return this.gameService.startGame(user.id, startGameDto);
   }
 
   @Post('hit')
   async hit(@Body() hitGameDto: HitGameRequestDto, @CurrentUser() user: JwtUserDetailsDto): Promise<GameResponseDto> {
-    return this.gameService.hit(hitGameDto);
+    return this.gameService.hit(user.id, hitGameDto);
   }
 
   @Post('stand')
   async stand(@Body() standGameDto: StandGameRequestDto, @CurrentUser() user: JwtUserDetailsDto): Promise<GameResponseDto> {
-    return this.gameService.stand(standGameDto);
+    return this.gameService.stand(user.id, standGameDto);
   }
 
 }
