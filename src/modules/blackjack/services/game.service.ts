@@ -11,40 +11,45 @@ import { GameResponseDto } from '../models/dto/responses/game.response.dto';
 import { GameState } from '../models/interfaces/game-state.interface';
 import { GameStatus } from '../models/enums/game-status.enum';
 import { GameEngine } from '../utils/game-engine.util';
+import { GameRepository } from '../repositories/game.repository';
 
 @Injectable()
 export class GameService {
     constructor(
       private readonly logger: LogService,
+      private readonly gameRepository: GameRepository,
       @InjectRedis() private readonly redis: Redis, 
     ) {
       this.logger.setContext(`${this.constructor.name}`);
     }
 
-    async saveGame(gameId: string, gameState: GameState) {
-      await this.redis.set(gameId, JSON.stringify(gameState));
+    async saveGame(gameId: number, gameState: GameState) {
+      await this.redis.set(gameId.toString(), JSON.stringify(gameState));
     }
     
-    async getGame(gameId: string): Promise<GameState | null> {
-      const value = await this.redis.get(gameId);
+    async getGame(gameId: number): Promise<GameState | null> {
+      const value = await this.redis.get(gameId.toString());
       return value ? JSON.parse(value) : null;
     }
 
-    async deleteGame(gameId: string): Promise<void> {
-      await this.redis.del(gameId);
+    async deleteGame(gameId: number): Promise<void> {
+      await this.redis.del(gameId.toString());
     }
 
-    private async finalizeOrSaveGame(gameId: string, gameState: GameState) {
+    private async finalizeOrSaveGame(gameState: GameState) {
       if (gameState.status !== GameStatus.PLAYING) {
-        await this.deleteGame(gameId);
+        await this.gameRepository.updateById(gameState.gameId, {
+          status: gameState.status,
+          result: gameState.result,
+        });
+        await this.deleteGame(gameState.gameId);
       } else {
-        await this.saveGame(gameId, gameState);
+        await this.saveGame(gameState.gameId, gameState);
       }
     }
 
-    async startGame(startGameDto: StartGameRequestDto): Promise<GameResponseDto> {
+    async startGame(userId:number, startGameDto: StartGameRequestDto): Promise<GameResponseDto> {
       
-      const gameId = uuidv4();
       const deck = GameEngine.generateDeck();
       const playerCards: string[] = [];
       const dealerCards: string[] = [];
@@ -52,8 +57,16 @@ export class GameService {
       GameEngine.dealCards(deck, dealerCards, 1);
       const gameStatusAndResult = GameEngine.checkGameStatus(playerCards, dealerCards);
 
+      const game = await this.gameRepository.addOne({
+        userId: userId,
+        betAmount: startGameDto.betAmount,
+        status: gameStatusAndResult.status,
+        result: gameStatusAndResult.result,
+      })
+
       const gameState: GameState = {
-        gameId : gameId,
+        gameId : game.id,
+        userId : userId,
         playerCards : playerCards,
         dealerCards : dealerCards,
         deck : deck,
@@ -61,20 +74,20 @@ export class GameService {
         result : gameStatusAndResult.result,
       };
 
-      await this.finalizeOrSaveGame(gameId, gameState);
+      await this.finalizeOrSaveGame(gameState);
 
       return plainToInstance(GameResponseDto, gameState, { excludeExtraneousValues: true });
         
     }
 
-    async hit(hitGameDto: HitGameRequestDto): Promise<GameResponseDto> {
+    async hit(userId:number, hitGameDto: HitGameRequestDto): Promise<GameResponseDto> {
      
         if (!hitGameDto.gameId) {
           throw new BadRequestException('Missing gameId');
         }
   
         const gameState = await this.getGame(hitGameDto.gameId);
-        if (!gameState) {
+        if (!gameState || gameState.userId !== userId) {
           throw new BadRequestException('Game not found');
         }
 
@@ -84,19 +97,19 @@ export class GameService {
         gameState.status = gameStatusAndResult.status;
         gameState.result = gameStatusAndResult.result;
   
-        await this.finalizeOrSaveGame(hitGameDto.gameId, gameState);
+        await this.finalizeOrSaveGame(gameState);
   
         return plainToInstance(GameResponseDto, gameState, { excludeExtraneousValues: true });
 
     }
 
-    async stand(standGameDto: StandGameRequestDto): Promise<GameResponseDto> {
+    async stand(userId:number, standGameDto: StandGameRequestDto): Promise<GameResponseDto> {
       if (!standGameDto.gameId) {
         throw new BadRequestException('Missing gameId');
       }
     
       const gameState = await this.getGame(standGameDto.gameId);
-      if (!gameState) {
+      if (!gameState || gameState.userId !== userId) {
         throw new BadRequestException('Game not found');
       }
     
@@ -108,7 +121,7 @@ export class GameService {
       gameState.status = gameStatusAndResult.status;
       gameState.result = gameStatusAndResult.result;
     
-      await this.finalizeOrSaveGame(standGameDto.gameId, gameState);
+      await this.finalizeOrSaveGame(gameState);
     
       return plainToInstance(GameResponseDto, gameState, { excludeExtraneousValues: true });
     }
