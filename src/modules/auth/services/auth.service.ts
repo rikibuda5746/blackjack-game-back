@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LogService } from '@src/core/logger/log-service';
 import { AppConfigService } from '@src/config/app-config.service';
 import { UsersService } from '@src/modules/users/services/users.service';
+import { BalanceService } from '@src/modules/balance/services/balance.service';
 import { plainToInstance } from 'class-transformer';
 import { RegisterRequestDto } from '../dto/requests/register.request.dto';
 import { LoginRequestDto } from '../dto/requests/login.request.dto';
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly appConfigService: AppConfigService,
     private usersService: UsersService,
+    private balanceService: BalanceService,
   ) {
     this.logger.setContext(`${this.constructor.name}`);
   }
@@ -33,7 +35,9 @@ export class AuthService {
         ...registerDto,
         password: hashedPassword,
     };
-     await this.usersService.addUser(createUserDto);
+    const user = await this.usersService.addUser(createUserDto);
+
+    await this.balanceService.createBalance(user.id, {amount: 100});
     
     return this.login({email: registerDto.email, password: registerDto.password});
    }
