@@ -9,7 +9,7 @@ import { GameResult } from '../models/enums/game-result.enum';
 @Injectable()
 export class GameRepository extends BaseRepository<
   GameEntity,
-  ['id', 'userId', 'status', 'result']
+  ['userId', 'status', 'result']
 > {
   constructor(
     @InjectRepository(GameEntity)
@@ -20,9 +20,6 @@ export class GameRepository extends BaseRepository<
 
   protected filterStrategies() {
     return {
-      id: (value: number) => ({
-        id: value,
-      }),
       userId: (value: number) => ({
         userId: value,
       }),
