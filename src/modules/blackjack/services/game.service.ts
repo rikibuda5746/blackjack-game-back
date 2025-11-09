@@ -12,6 +12,8 @@ import { GameState } from '../models/interfaces/game-state.interface';
 import { GameStatus } from '../models/enums/game-status.enum';
 import { GameEngine } from '../utils/game-engine.util';
 import { GameRepository } from '../repositories/game.repository';
+import { BalanceService } from '@src/modules/balance/services/balance.service';
+import { GameResult } from '../models/enums/game-result.enum';
 
 @Injectable()
 export class GameService {
@@ -19,6 +21,7 @@ export class GameService {
       private readonly logger: LogService,
       private readonly gameRepository: GameRepository,
       @InjectRedis() private readonly redis: Redis, 
+      private readonly balanceService: BalanceService,
     ) {
       this.logger.setContext(`${this.constructor.name}`);
     }
@@ -43,12 +46,22 @@ export class GameService {
           result: gameState.result,
         });
         await this.deleteGame(gameState.gameId);
+        if (gameState.result === GameResult.WIN || gameState.result === GameResult.DRAW) {
+          await this.balanceService.updateBalance(gameState.userId, {amount: gameState.betAmount});
+        } else if (gameState.result === GameResult.LOSE) {
+          await this.balanceService.updateBalance(gameState.userId, {amount: -gameState.betAmount});
+        }
       } else {
         await this.saveGame(gameState.gameId, gameState);
       }
     }
 
     async startGame(userId:number, startGameDto: StartGameRequestDto): Promise<GameResponseDto> {
+
+      const balance = await this.balanceService.getBalance(userId);
+      if (balance.amount < startGameDto.betAmount) {
+        throw new BadRequestException('Insufficient balance from game');
+      }
       
       const deck = GameEngine.generateDeck();
       const playerCards: string[] = [];
@@ -72,6 +85,7 @@ export class GameService {
         deck : deck,
         status :  gameStatusAndResult.status,
         result : gameStatusAndResult.result,
+        betAmount : startGameDto.betAmount,
       };
 
       await this.finalizeOrSaveGame(gameState);

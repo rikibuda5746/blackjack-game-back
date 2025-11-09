@@ -9,4 +9,5 @@ export interface GameState {
   deck: string[];
   status: GameStatus;
   result?: GameResult;
+  betAmount: number;
 }
