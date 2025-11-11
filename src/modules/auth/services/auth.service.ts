@@ -48,7 +48,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid email or password');
     }
     const user = await this.usersService.findOne({email: loginDto.email});
-    const payload = { id: user.id };
+    const payload = { id: user.id, role: user.role };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.appConfigService.jwtAccessSecret,
       expiresIn: this.appConfigService.jwtAccessExpires,
@@ -83,14 +83,14 @@ export class AuthService {
         secret: this.appConfigService.jwtRefreshSecret,
       });
       const accessToken = await this.jwtService.signAsync(
-        { id: payload.id},
+        { id: payload.id, role: payload.role },
         {
           secret: this.appConfigService.jwtAccessSecret,
           expiresIn: this.appConfigService.jwtAccessExpires,
         }
       );
       const refreshToken = await this.jwtService.signAsync(
-        { id: payload.id},
+        { id: payload.id, role: payload.role },
         {
           secret: this.appConfigService.jwtRefreshSecret,
           expiresIn: this.appConfigService.jwtRefreshExpires,

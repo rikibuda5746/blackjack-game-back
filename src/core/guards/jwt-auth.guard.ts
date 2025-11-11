@@ -12,6 +12,7 @@ import { JwtUserDetailsDto } from '@src/common/dto/jwt-user-details.dto';
 import { Request } from 'express';
 import { AppConfigService } from 'src/config/app-config.service';
 import { IS_PUBLIC_KEY } from '../../common/decorators/public.decorator';
+import { RoleEnum } from '@src/common/enums/role.enum';
 declare module 'express' {
   interface Request {
     user?: JwtUserDetailsDto;
@@ -51,6 +52,7 @@ export class JwtAuthGuard implements CanActivate {
 
       request.user = {
         id: Number.parseInt(payload['id']),
+        role: payload['role'] as RoleEnum,
       };
 
       return true;

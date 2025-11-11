@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { RoleEnum } from '@src/common/enums/role.enum';
 
 export class UserResponseDto {
   @Expose()
@@ -9,4 +10,7 @@ export class UserResponseDto {
 
   @Expose()
   name: string;
+
+  @Expose()
+  role: RoleEnum;
 }
