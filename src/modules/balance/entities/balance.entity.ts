@@ -21,7 +21,7 @@ export class BalanceEntity {
   @Column({ name: 'amount', type: 'decimal', default: 0 })
   amount: number;
 
-  @OneToOne(() => UserEntity)
+  @OneToOne(() => UserEntity, user => user.balance)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 

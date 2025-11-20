@@ -30,31 +30,33 @@ export abstract class BaseRepository<
     });
   }
 
-  public async getById(id: number): Promise<T> {
+  public async getById(id: number, relations?: string[]): Promise<T> {
     return await this.repository.findOne({
       where: { id } as FindOptionsWhere<T>,
-      relations: this.getRelations(),
+      relations: relations ?? this.getRelations(),
     });
   }
 
   public async getOneByQuery(
     query: Partial<Record<F[number], any>>,
+    relations?: string[],
   ): Promise<T | undefined> {
     const filters = this.queryToFilters(query);
     return await this.repository.findOne({
       where: filters,
-      relations: this.getRelations(),
+      relations: relations ?? this.getRelations(),
     });
   }
 
   public async getManyByQuery(
     query: Partial<Record<F[number], any>>,
     options?: { skip?: number; take?: number },
+    relations?: string[],
   ): Promise<[T[], number]> {
     const filters = this.queryToFilters(query);
     return await this.repository.findAndCount({
       where: filters,
-      relations: this.getRelations(),
+      relations: relations ?? this.getRelations(),
       take: options?.take,
       skip: options?.skip,
     });

@@ -1,9 +1,11 @@
 import { RoleEnum } from '@src/common/enums/role.enum';
+import { BalanceEntity } from '@src/modules/balance/entities/balance.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -24,6 +26,9 @@ export class UserEntity {
 
   @Column({ name: 'role', nullable: false })
   role: RoleEnum;
+
+  @OneToOne(() => BalanceEntity, balance => balance.user)
+  balance: BalanceEntity;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
